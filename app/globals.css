@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --bg:#f7f8fa; --surf:#ffffff; --ink:#16181d; --mut:#6b7280; --line:#eceef2; --acc:#0b6e7a; --accx:#e8f3f4; --warn:#b4570a; --ok:#1f7a4d; color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#0e1a1f; --surf:#15262d; --ink:#e6f0f3; --mut:#8fa6af; --line:#253a43; --acc:#4cc2cf; --accx:#16363c; --warn:#f0a15a; --ok:#5fd09a; color-scheme: dark; }
+}
+@layer base {
+  body { @apply bg-bg text-ink antialiased; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+}
+@layer components {
+  .card { @apply rounded-2xl border border-line bg-surf p-5; }
+  .btn { @apply inline-flex items-center justify-center rounded-lg border border-line bg-surf px-3.5 py-2 text-sm font-medium transition hover:bg-bg disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply border-acc bg-acc text-white hover:bg-acc hover:opacity-90; }
+  .input { @apply w-full rounded-lg border border-line bg-surf px-3 py-2 text-sm outline-none focus:border-acc; }
+  .label { @apply mb-1 block text-xs font-medium text-mut; }
+  .tag { @apply inline-block whitespace-nowrap rounded-full bg-accx px-2.5 py-0.5 text-xs text-acc; }
+  .alert { @apply mb-4 rounded-lg border border-warn px-3 py-2 text-sm text-warn; }
+  .empty { @apply rounded-2xl border border-dashed border-line p-10 text-center text-sm text-mut; }
+}

@@ -1,0 +1,11 @@
+-- Έλεγχος πρόσβασης (τρέξ' τον ΜΕΤΑ τη δημιουργία δοκιμαστικού υπαλλήλου με ένα ακίνητο).
+-- Αντικατάστησε τα UUID με πραγματικά από τους πίνακες profiles / properties.
+-- Προσομοίωση υπαλλήλου:
+--   begin;
+--   set local role authenticated;
+--   set local request.jwt.claims = '{"sub":"<EMPLOYEE_UUID>","role":"authenticated"}';
+--   select count(*) from public.financial_entries;                -- ΠΡΕΠΕΙ να είναι 0
+--   select count(*) from public.properties;                       -- ΜΟΝΟ τα ανατεθειμένα
+--   select count(*) from public.audit_log;                        -- ΠΡΕΠΕΙ να είναι 0
+--   update public.properties set name = 'x';                      -- ΠΡΕΠΕΙ να αλλάξει 0 γραμμές
+--   rollback;
