@@ -4,18 +4,34 @@ import { revalidatePath } from 'next/cache';
 import { requireOwner } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-export async function inviteEmployee(formData: FormData) {
+const back = (q: string) => redirect(`/admin/users?${q}`);
+
+// Δημιουργία υπαλλήλου με προσωρινό κωδικό (χωρίς email). Ο Owner δίνει τα στοιχεία στον υπάλληλο.
+export async function createEmployee(formData: FormData) {
   await requireOwner();
   const email = String(formData.get('email') ?? '').trim().toLowerCase();
   const full_name = String(formData.get('full_name') ?? '').trim();
-  if (!email) redirect('/admin/users?error=email');
-  const { error } = await createAdminClient().auth.admin.inviteUserByEmail(email, {
-    data: { full_name },
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/set-password`,
+  const password = String(formData.get('password') ?? '');
+  if (!email) back('error=' + encodeURIComponent('Συμπλήρωσε email.'));
+  if (password.length < 10) back('error=' + encodeURIComponent('Ο κωδικός πρέπει να έχει τουλάχιστον 10 χαρακτήρες.'));
+  const { error } = await createAdminClient().auth.admin.createUser({
+    email, password, email_confirm: true, user_metadata: { full_name },
   });
-  if (error) redirect(`/admin/users?error=${encodeURIComponent(error.message)}`);
+  if (error) back('error=' + encodeURIComponent(error.message));
   revalidatePath('/admin/users');
-  redirect('/admin/users?ok=invited');
+  back('ok=created');
+}
+
+export async function resetEmployeePassword(formData: FormData) {
+  const { supabase } = await requireOwner();
+  const userId = String(formData.get('user_id'));
+  const password = String(formData.get('password') ?? '');
+  if (password.length < 10) back('error=' + encodeURIComponent('Ο κωδικός πρέπει να έχει τουλάχιστον 10 χαρακτήρες.'));
+  const { data: target } = await supabase.from('profiles').select('role').eq('id', userId).single();
+  if (!target || target.role !== 'employee') back('error=' + encodeURIComponent('Μη έγκυρος χρήστης.'));
+  const { error } = await createAdminClient().auth.admin.updateUserById(userId, { password });
+  if (error) back('error=' + encodeURIComponent(error.message));
+  back('ok=pwd');
 }
 
 export async function setActive(formData: FormData) {
