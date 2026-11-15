@@ -10,7 +10,7 @@ export async function login(formData: FormData) {
     email: String(formData.get('email') ?? '').trim(),
     password: String(formData.get('password') ?? ''),
   });
-  if (error) redirect('/login?error=invalid');
+  if (error) redirect(`/login?error=invalid&detail=${encodeURIComponent(error.message)}`);
   redirect('/');
 }
 
